@@ -3,16 +3,23 @@ require "thor"
 module Notester
   class CLI < Thor
     JOIN_PDF_SCRIPT_PATH = '/System/Library/Automator/Combine\ PDF\ Pages.action/Contents/Resources/join.py'
+    PDF_SUFFIXES = [
+      "-page-1.pdf",
+      "-page-01.pdf"
+    ]
+
     desc "merge [dir]", "merge pages of PDF notes"
     def merge(directory)
       if File.directory?(directory)
-        Dir.glob(File.join(directory, "*page-1.pdf")).each do |file|
-          pdf_glob_to_join = file.gsub(/1.pdf$/, "*.pdf")
-          consolidated_file_name = file.gsub("-page-1.pdf", ".pdf")
-          say "merging #{consolidated_file_name}"
-          cmd = "#{JOIN_PDF_SCRIPT_PATH} --output #{consolidated_file_name} #{pdf_glob_to_join}"
-          say "executing #{cmd}"
-          exec = `#{cmd}`
+        PDF_SUFFIXES.each do |pdf_suffix|
+          Dir.glob(File.join(directory, "*#{pdf_suffix}")).each do |file|
+            pdf_glob_to_join = file.gsub(/#{Regexp.escape(pdf_suffix)}$/, "*.pdf")
+            consolidated_file_name = file.gsub(pdf_suffix, ".pdf")
+            say "merging #{consolidated_file_name}"
+            cmd = "#{JOIN_PDF_SCRIPT_PATH} --output #{consolidated_file_name} #{pdf_glob_to_join}"
+            say "executing #{cmd}"
+            exec = `#{cmd}`
+          end
         end
       else
         say "Invalid directory #{directory}"
