@@ -30,7 +30,7 @@ module Notester
     def convert(directory)
       if File.directory?(directory)
         Dir.glob(File.join(directory, "*.pdf")).each do |file|
-          if !(file =~ /-page-\d\.pdf$/)
+          if !(file =~ /-page-\d+\.pdf$/)
             say "converting #{file}"
             png_file = "#{file.gsub(/\.pdf$/, ".png")}"
             `convert #{file} #{png_file}`
